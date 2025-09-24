@@ -1,0 +1,8 @@
+package com.storyapi.demo.Service;
+
+public class ResourceNotFoundException extends Exception {
+
+    public ResourceNotFoundException(String string) {
+        //TODO Auto-generated constructor stub
+    }
+}
