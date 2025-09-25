@@ -21,7 +21,7 @@ public interface AuthorApplicationRepository extends JpaRepository<AuthorApplica
 
     List<AuthorApplication> findByReviewedBy(User reviewer);
 
-    boolean exexistsByUserAndStatus(User user, ApplicationStatus status);
+    boolean existsByUserAndStatus(User user, ApplicationStatus status);
 
     Optional<AuthorApplication> findFirstByUserOrderByCreatedAtDesc(User user);
 

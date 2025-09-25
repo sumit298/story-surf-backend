@@ -10,7 +10,7 @@ import com.storyapi.demo.Entity.Mood;
 public interface MoodRepository extends JpaRepository<Mood, Long>{
     Optional<Mood> findByMoodName(String moodName);
     
-    boolean existsByName(String moodName);
+    boolean existsByMoodName(String moodName);
     
-    List<Mood> findAllByOrderByNameAsc();
+    List<Mood> findAllByOrderByMoodNameAsc();
 }
