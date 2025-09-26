@@ -36,8 +36,8 @@ public interface StoryRepository extends JpaRepository<Story, Long>{
     
     
     // Custom query to find trending stories (high views in recent time)
-    @Query("Select s from Story s where s.status = :status and createdAt > :since ORDER BY s.views DESC, s.likes DESC")
-    List<Story> findTrendingStories(@Param("status") StoryStatus status, @Param("since") LocalDateTime sicne);
+    @Query("Select s from Story s where s.status = :status and s.createdAt > :since ORDER BY s.views DESC, s.likes DESC")
+    List<Story> findTrendingStories(@Param("status") StoryStatus status, @Param("since") LocalDateTime since);
     
     long countByAuthor(User author);
     

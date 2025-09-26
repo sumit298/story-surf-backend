@@ -40,7 +40,7 @@ public class JwtUtil {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(expiryDate)
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(now).setExpiration(expiryDate)
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256).compact();
     }
 

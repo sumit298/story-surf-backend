@@ -103,9 +103,6 @@ public class AuthorApplication {
         this.status = status;
     }
     
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
     
     public void setUser(User user) {
         this.user = user;

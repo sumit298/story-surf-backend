@@ -181,9 +181,13 @@ public class Story {
         reflection.setStory(this);
     }
 
-    public void incrementViews() {
-        this.views++;
-    }
+public void incrementViews() {
+    // This should be handled at the repository/service layer with:
+    // @Modifying
+    // @Query("UPDATE Story s SET s.views = s.views + 1 WHERE s.id = :id")
+    // void incrementViews(@Param("id") Long id);
+    this.views = this.views + 1;
+}
 
     public void addTag(String tag) {
         if (!this.tags.contains(tag)) {
