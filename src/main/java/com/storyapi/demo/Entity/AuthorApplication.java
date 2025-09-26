@@ -111,6 +111,10 @@ public class AuthorApplication {
         this.user = user;
     }
     
+    public long getId() {
+        return id;
+    }
+    
     
     public enum ApplicationStatus {
         PENDING,
