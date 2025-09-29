@@ -16,6 +16,8 @@ import com.storyapi.demo.Entity.UserDirectory.User;
 public interface StoryRepository extends JpaRepository<Story, Long>{
     List<Story> findByAuthor(User author);
     
+    List<Story> findByAuthorOrderByCreatedAtDesc(User author);
+    
     List<Story> findByAuthorId(Long authorId);
     
     List<Story> findAllByStatus(StoryStatus status);
@@ -30,9 +32,13 @@ public interface StoryRepository extends JpaRepository<Story, Long>{
     List<Story> findByAllTags(@Param("tags") List<String> tags, @Param("tagcount") long tagcount);
     
     List<Story> findByTitleContainingIgnoreCase(String keyword);
+    
+    List<Story> searchInTitleAndContent(String keyword, StoryStatus storyStatus);
         
     // find popular stories
     List<Story> findTop10ByStatusOrderByViewsDesc(StoryStatus status);
+    
+    List<Story> findTop10ByStatusOrderByCreatedAtDesc(StoryStatus status);
     
     
     // Custom query to find trending stories (high views in recent time)

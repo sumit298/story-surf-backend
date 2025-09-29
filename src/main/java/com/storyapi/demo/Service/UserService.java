@@ -63,6 +63,11 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
+    
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) throws ResourceNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User email not found"));
+    }
 
     /**
      * Get all users (admin operation)
