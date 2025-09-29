@@ -1,7 +1,9 @@
 package com.storyapi.demo.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ import com.storyapi.demo.dto.StoryDTO;
 import com.storyapi.demo.dto.StorySearchDTO;
 
 import org.springframework.transaction.annotation.Transactional;
-import Mapper.DTOMapper;
+import com.storyapi.demo.mapper.DTOMapper;
 import jakarta.annotation.Resource;
 
 @Service
@@ -130,13 +132,22 @@ public class StoryService {
         List<Story> titleMatches = storyRepository.findByTitleContainingIgnoreCase(keyword);
         List<Story> contentMatches = storyRepository.searchInTitleAndContent(keyword, StoryStatus.PUBLISHED);
 
-        List<Story> allMatches = titleMatches.stream().filter(story -> story.getStatus() == StoryStatus.PUBLISHED)
-                .distinct().toList();
+        
+        List<Story> allMatches = titleMatches.stream()
+                .filter(story -> story.getStatus() == StoryStatus.PUBLISHED)
+                .distinct()
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        contentMatches.stream().filter(story -> !allMatches.contains(story)).forEach(allMatches::add);
+        contentMatches.stream()
+                .filter(story -> story.getStatus() == StoryStatus.PUBLISHED
+                        && !allMatches.contains(story))
+                .forEach(allMatches::add);
 
-        List<StoryDTO> storyDTOs = allMatches.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())
-                .map(mapper::toStoryDTO).toList();
+        List<StoryDTO> storyDTOs = allMatches.stream()
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .map(mapper::toStoryDTO)
+                .toList();
 
         long totalResults = allMatches.size();
         int totalPages = (int) Math.ceil((double) totalResults / size);
@@ -181,131 +192,137 @@ public class StoryService {
         return mapper.toStoryDTO(updatedStory);
 
     }
-    
+
     // public StoryDTO submitStoryForReview(Long storyId, Long authorId) {
-    //     Story story = storyRepository.findById(storyId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
-        
-    //     // Check ownership
-    //     if (!story.getAuthor().getId().equals(authorId)) {
-    //         throw new UnauthorizedException("You can only submit your own stories");
-    //     }
-        
-    //     // Can only submit draft stories
-    //     if (story.getStatus() != StoryStatus.DRAFT) {
-    //         throw new InvalidRequestException("Only draft stories can be submitted for review");
-    //     }
-        
-    //     // Validate story is complete
-    //     if (story.getTitle() == null || story.getTitle().trim().isEmpty()) {
-    //         throw new InvalidRequestException("Story must have a title");
-    //     }
-    //     if (story.getContent() == null || story.getContent().trim().isEmpty()) {
-    //         throw new InvalidRequestException("Story must have content");
-    //     }
-        
-    //     story.setStatus(StoryStatus.SUBMITTED);
-    //     Story updatedStory = storyRepository.save(story);
-        
-    //     return mapper.toStoryDTO(updatedStory);
-    // }
-    
-    //  public StoryDTO approveStory(Long storyId, Long adminId) {
-    //     return updateStoryStatus(storyId, StoryStatus.APPROVED, adminId);
-    // }
-    
-    // /**
-    //  * Publish story (admin only)
-    //  */
-    // public StoryDTO publishStory(Long storyId, Long adminId) {
-    //     return updateStoryStatus(storyId, StoryStatus.PUBLISHED, adminId);
+    // Story story = storyRepository.findById(storyId)
+    // .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+
+    // // Check ownership
+    // if (!story.getAuthor().getId().equals(authorId)) {
+    // throw new UnauthorizedException("You can only submit your own stories");
     // }
 
-    // private StoryDTO updateStoryStatus(Long storyId, StoryStatus status, Long adminId) throws ResourceNotFoundException {
-    //     User admin = userRepository.findById(adminId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
-        
-    //     if (admin.getRole() != UserRole.ADMIN) {
-    //         throw new UnauthorizedException("Only admins can update story status");
-    //     }
-        
-    //     Story story = storyRepository.findById(storyId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
-        
-    //     story.setStatus(status);
-    //     Story updatedStory = storyRepository.save(story);
-        
-    //     return mapper.toStoryDTO(updatedStory);
+    // // Can only submit draft stories
+    // if (story.getStatus() != StoryStatus.DRAFT) {
+    // throw new InvalidRequestException("Only draft stories can be submitted for
+    // review");
     // }
-    
+
+    // // Validate story is complete
+    // if (story.getTitle() == null || story.getTitle().trim().isEmpty()) {
+    // throw new InvalidRequestException("Story must have a title");
+    // }
+    // if (story.getContent() == null || story.getContent().trim().isEmpty()) {
+    // throw new InvalidRequestException("Story must have content");
+    // }
+
+    // story.setStatus(StoryStatus.SUBMITTED);
+    // Story updatedStory = storyRepository.save(story);
+
+    // return mapper.toStoryDTO(updatedStory);
+    // }
+
+    // public StoryDTO approveStory(Long storyId, Long adminId) {
+    // return updateStoryStatus(storyId, StoryStatus.APPROVED, adminId);
+    // }
+
+    // /**
+    // * Publish story (admin only)
+    // */
+    // public StoryDTO publishStory(Long storyId, Long adminId) {
+    // return updateStoryStatus(storyId, StoryStatus.PUBLISHED, adminId);
+    // }
+
+    // private StoryDTO updateStoryStatus(Long storyId, StoryStatus status, Long
+    // adminId) throws ResourceNotFoundException {
+    // User admin = userRepository.findById(adminId)
+    // .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
+
+    // if (admin.getRole() != UserRole.ADMIN) {
+    // throw new UnauthorizedException("Only admins can update story status");
+    // }
+
+    // Story story = storyRepository.findById(storyId)
+    // .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+
+    // story.setStatus(status);
+    // Story updatedStory = storyRepository.save(story);
+
+    // return mapper.toStoryDTO(updatedStory);
+    // }
+
     public void deleteStory(Long storyId, Long userId) throws ResourceNotFoundException {
-        Story story = storyRepository.findById(storyId).orElseThrow(()-> new ResourceNotFoundException("Story not found"));
-        
-        User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-        
-        if(!story.getAuthor().getId().equals(userId) &&  user.getRole() != UserRole.ADMIN){
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!story.getAuthor().getId().equals(userId) && user.getRole() != UserRole.ADMIN) {
             throw new UnauthorizedException("You can only delete your own stories");
         }
-        
-        if(story.getStatus() == StoryStatus.PUBLISHED && user.getRole() != UserRole.ADMIN){
+
+        if (story.getStatus() == StoryStatus.PUBLISHED && user.getRole() != UserRole.ADMIN) {
             throw new UnauthorizedException("Cannot delete published Stories");
         }
-        
+
         storyRepository.delete(story);
     }
-    
-    public StoryDTO likeStory(Long storyId) throws InvalidRequestException, ResourceNotFoundException{
-        Story story = storyRepository.findById(storyId).orElseThrow(()-> new ResourceNotFoundException("Story  not found"));
-        
-        if(story.getStatus()!= StoryStatus.PUBLISHED){
+
+    public StoryDTO likeStory(Long storyId) throws InvalidRequestException, ResourceNotFoundException {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story  not found"));
+
+        if (story.getStatus() != StoryStatus.PUBLISHED) {
             throw new InvalidRequestException("Cannot like unpublished stories");
-            
+
         }
-        
+
         story.setLikes(story.getLikes() + 1);
         Story updatedStory = storyRepository.save(story);
         return mapper.toStoryDTO(updatedStory);
     }
-    
+
     // @Transactional(readOnly = true)
     // public List<StoryDTO> getStoriesPendingReview() {
-    //     List<Story> stories = storyRepository.findByStatus(StoryStatus.SUBMITTED);
-    //     return mapper.toStoryDTOList(stories);
+    // List<Story> stories = storyRepository.findByStatus(StoryStatus.SUBMITTED);
+    // return mapper.toStoryDTOList(stories);
     // }
-    
-     @Transactional(readOnly = true)
+
+    @Transactional(readOnly = true)
     public StoryStatsDTO getStoryStats() {
         long totalStories = storyRepository.count();
         long publishedStories = storyRepository.countByStatus(StoryStatus.PUBLISHED);
         long draftStories = storyRepository.countByStatus(StoryStatus.DRAFT);
         long submittedStories = storyRepository.countByStatus(StoryStatus.SUBMITTED);
         long archivedStories = storyRepository.countByStatus(StoryStatus.ARCHIVED);
-        
-        return new StoryStatsDTO(totalStories, publishedStories, draftStories, 
-                                submittedStories, archivedStories);
+
+        return new StoryStatsDTO(totalStories, publishedStories, draftStories,
+                submittedStories, archivedStories);
     }
-    
+
     // /**
-    //  * Get author statistics
-    //  */
+    // * Get author statistics
+    // */
     // @Transactional(readOnly = true)
     // public AuthorStatsDTO getAuthorStats(Long authorId) {
-    //     User author = userRepository.findById(authorId)
-    //             .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
-        
-    //     long totalStories = storyRepository.countByAuthor(author);
-    //     long publishedStories = storyRepository.countByAuthorAndStatus(author, StoryStatus.PUBLISHED);
-    //     long draftStories = storyRepository.countByAuthorAndStatus(author, StoryStatus.DRAFT);
-        
-    //     // Calculate total views and likes
-    //     List<Story> authorStories = storyRepository.findByAuthor(author);
-    //     long totalViews = authorStories.stream().mapToLong(Story::getViews).sum();
-    //     long totalLikes = authorStories.stream().mapToLong(Story::getLikes).sum();
-        
-    //     return new AuthorStatsDTO(totalStories, publishedStories, draftStories, 
-    //                              totalViews, totalLikes);
+    // User author = userRepository.findById(authorId)
+    // .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+
+    // long totalStories = storyRepository.countByAuthor(author);
+    // long publishedStories = storyRepository.countByAuthorAndStatus(author,
+    // StoryStatus.PUBLISHED);
+    // long draftStories = storyRepository.countByAuthorAndStatus(author,
+    // StoryStatus.DRAFT);
+
+    // // Calculate total views and likes
+    // List<Story> authorStories = storyRepository.findByAuthor(author);
+    // long totalViews = authorStories.stream().mapToLong(Story::getViews).sum();
+    // long totalLikes = authorStories.stream().mapToLong(Story::getLikes).sum();
+
+    // return new AuthorStatsDTO(totalStories, publishedStories, draftStories,
+    // totalViews, totalLikes);
     // }
-    
+
 }
 
 class StoryStatsDTO {
@@ -314,22 +331,36 @@ class StoryStatsDTO {
     private long draftStories;
     private long submittedStories;
     private long archivedStories;
-    
-    public StoryStatsDTO(long totalStories, long publishedStories, long draftStories, 
-                        long submittedStories, long archivedStories) {
+
+    public StoryStatsDTO(long totalStories, long publishedStories, long draftStories,
+            long submittedStories, long archivedStories) {
         this.totalStories = totalStories;
         this.publishedStories = publishedStories;
         this.draftStories = draftStories;
         this.submittedStories = submittedStories;
         this.archivedStories = archivedStories;
     }
-    
+
     // Getters
-    public long getTotalStories() { return totalStories; }
-    public long getPublishedStories() { return publishedStories; }
-    public long getDraftStories() { return draftStories; }
-    public long getSubmittedStories() { return submittedStories; }
-    public long getArchivedStories() { return archivedStories; }
+    public long getTotalStories() {
+        return totalStories;
+    }
+
+    public long getPublishedStories() {
+        return publishedStories;
+    }
+
+    public long getDraftStories() {
+        return draftStories;
+    }
+
+    public long getSubmittedStories() {
+        return submittedStories;
+    }
+
+    public long getArchivedStories() {
+        return archivedStories;
+    }
 }
 
 class AuthorStatsDTO {
@@ -338,20 +369,34 @@ class AuthorStatsDTO {
     private long draftStories;
     private long totalViews;
     private long totalLikes;
-    
-    public AuthorStatsDTO(long totalStories, long publishedStories, long draftStories, 
-                         long totalViews, long totalLikes) {
+
+    public AuthorStatsDTO(long totalStories, long publishedStories, long draftStories,
+            long totalViews, long totalLikes) {
         this.totalStories = totalStories;
         this.publishedStories = publishedStories;
         this.draftStories = draftStories;
         this.totalViews = totalViews;
         this.totalLikes = totalLikes;
     }
-    
+
     // Getters
-    public long getTotalStories() { return totalStories; }
-    public long getPublishedStories() { return publishedStories; }
-    public long getDraftStories() { return draftStories; }
-    public long getTotalViews() { return totalViews; }
-    public long getTotalLikes() { return totalLikes; }
+    public long getTotalStories() {
+        return totalStories;
+    }
+
+    public long getPublishedStories() {
+        return publishedStories;
+    }
+
+    public long getDraftStories() {
+        return draftStories;
+    }
+
+    public long getTotalViews() {
+        return totalViews;
+    }
+
+    public long getTotalLikes() {
+        return totalLikes;
+    }
 }

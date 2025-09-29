@@ -1,4 +1,4 @@
-package Mapper;
+package com.storyapi.demo.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;

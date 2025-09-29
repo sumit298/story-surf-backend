@@ -27,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
     List<User> findByAppliedForAuthorTrue();
     
     // find users by age range
-    @Query("Select u from user where u.age between :minAge and :maxAge")
+    @Query("Select u from User u where u.age between :minAge and :maxAge")
     List<User> findUserByAgeRange(@Param("minAge") int minAge, @Param("maxAge") int maxAge);
     
     // find users by specific date
