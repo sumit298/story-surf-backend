@@ -222,10 +222,12 @@ public class StoryService {
     // return mapper.toStoryDTO(updatedStory);
     // }
 
+    @Transactional
     public StoryDTO approveStory(Long storyId, Long adminId) throws ResourceNotFoundException {
         return updateStoryStatus(storyId, StoryStatus.APPROVED, adminId);
     }
 
+    @Transactional
     public StoryDTO archiveStory(Long storyId, Long adminId) throws ResourceNotFoundException {
         return updateStoryStatus(storyId, StoryStatus.ARCHIVED, adminId);
     }
@@ -233,6 +235,7 @@ public class StoryService {
     // /**
     // * Publish story (admin only)
     // */
+    @Transactional
     public StoryDTO publishStory(Long storyId, Long adminId) throws ResourceNotFoundException {
         return updateStoryStatus(storyId, StoryStatus.PUBLISHED, adminId);
     }

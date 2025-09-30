@@ -21,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Reflection")
+@Table(name = "reflections")
 public class Reflection {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +40,10 @@ public class Reflection {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReflectionType type;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "mood_id")
+    private Mood mood;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -64,6 +68,50 @@ public class Reflection {
         this.type = type;
         this.content = content;
         this.moodReaction = moodReaction;
+    }
+
+    public Reflection(Story story, User user, ReflectionType type, String content) {
+        this.story = story;
+        this.user = user;
+        this.type = type;
+        this.content = content;
+    }
+
+    public void setMoodWithSync(Mood mood) {
+        this.mood = mood;
+        this.moodReaction = mood != null ? mood.getMoodName() : null;
+    }
+
+    /**
+     * Check if this reflection has a mood component
+     */
+    public boolean hasMood() {
+        return mood != null || (moodReaction != null && !moodReaction.trim().isEmpty());
+    }
+
+    /**
+     * Get the effective mood name (prioritizes Mood entity over string)
+     */
+    public String getEffectiveMoodName() {
+        return mood != null ? mood.getMoodName() : moodReaction;
+    }
+
+    /**
+     * Check if this is a pure reaction (no comment text)
+     */
+    public boolean isPureReaction() {
+        return type == ReflectionType.REACTION &&
+                (content == null || content.trim().isEmpty()) &&
+                hasMood();
+    }
+
+    /**
+     * Check if this is a comment with mood
+     */
+    public boolean isCommentWithMood() {
+        return type == ReflectionType.COMMENT &&
+                content != null && !content.trim().isEmpty() &&
+                hasMood();
     }
 
     public void setContent(String content) {
@@ -137,5 +185,5 @@ public class Reflection {
         COMMENT,
         REACTION
     }
-}
 
+}

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.storyapi.demo.Entity.Mood;
 import com.storyapi.demo.Entity.StoryDirectory.Story;
 import com.storyapi.demo.Entity.StoryDirectory.Story.StoryStatus;
 import com.storyapi.demo.Entity.UserDirectory.User;
@@ -56,6 +57,8 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     long countByStatus(StoryStatus status);
 
     List<Story> findByAuthorAndStatus(User author, StoryStatus status);
+    
+    List<Story> findByMood(Mood mood);
     
     
     

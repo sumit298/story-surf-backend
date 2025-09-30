@@ -30,6 +30,8 @@ import com.storyapi.demo.dto.StoryStatsDTO;
 @RequestMapping("api/stories")
 @CrossOrigin(origins = "*", maxAge = 3600)
 
+// TODO: POST MAppings are still pending
+
 public class StoryController {
     @Autowired
     private StoryService storyService;
@@ -40,7 +42,7 @@ public class StoryController {
         try {
             Page<StoryDTO> stories = storyService.getPublishedStories(page, size, sortBy);
 
-            Map<String, Object> response = Map.of("stories", stories.getContent(), "currentPage", stories.getContent(),
+            Map<String, Object> response = Map.of("stories", stories.getContent(),
                     "currentPage", stories.getNumber(), "totalPages", stories.getTotalPages(), "totalElements",
                     stories.getTotalElements(), "hasNext", stories.hasNext(), "hasPrevious", stories.hasPrevious());
 
@@ -139,7 +141,7 @@ public class StoryController {
         }
     }
 
-    @GetMapping("public/author/{authorId}")
+    @GetMapping("/public/author/{authorId}")
     public ResponseEntity<Map<String, Object>> getStoriesByAuthorAndStatus(@PathVariable Long authorId,
             @RequestParam String status) {
         try {

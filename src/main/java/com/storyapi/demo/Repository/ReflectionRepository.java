@@ -16,13 +16,13 @@ public interface ReflectionRepository extends JpaRepository<Reflection, Long> {
     List<Reflection> findByStory(Story story);
 
     // Find reflections for a story ordered by creation date
-    List<Reflection> findByStoryOrderByCreatedAtDesc(Story story);
+    List<Reflection> findByStoryOrderByCreatedAtDesc(Long storyId);
 
     List<Reflection> findByUser(User user);
 
     List<Reflection> findByType(ReflectionType type);
 
-    List<Reflection> findByStoryAndType(Story story, ReflectionType type);
+    List<Reflection> findByStoryAndType(Long storyId, ReflectionType type);
 
     long countByStory(Story story);
 
