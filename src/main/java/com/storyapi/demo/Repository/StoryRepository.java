@@ -56,4 +56,8 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     long countByStatus(StoryStatus status);
 
     List<Story> findByAuthorAndStatus(User author, StoryStatus status);
+    
+    
+    
+    
 }

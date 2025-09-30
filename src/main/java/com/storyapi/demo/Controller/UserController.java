@@ -52,20 +52,28 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody UserRegistrationDTO registrationDTO) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            User user = userService.registerUser(registrationDTO);
+            // Debug logging
+            System.out.println("[DEBUG] Received registration DTO: " + registrationDTO.getEmail()
+                    + ", password present? " + (registrationDTO.getPassword() != null));
 
-            Map<String, Object> response = new HashMap<>();
+            User user = userService.registerUser(registrationDTO); // This will encode password
+
+            // Debug logging
+            System.out.println("[DEBUG] User saved: " + user.getEmail() + ", id: " + user.getId());
+
             response.put("message", "User Registered successfully");
             response.put("user", user);
-
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            Map<String, Object> errResponse = new HashMap<>();
-            errResponse.put("error", "Registration failed");
-            errResponse.put("message", e.getMessage());
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errResponse);
+        } catch (Exception e) {
+            System.err.println("[ERROR] Registration failed: " + e.getMessage());
+            e.printStackTrace();
+
+            response.put("error", "Registration failed");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 

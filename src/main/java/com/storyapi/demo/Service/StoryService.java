@@ -21,6 +21,7 @@ import com.storyapi.demo.Repository.UserRepository;
 import com.storyapi.demo.dto.StoryCreateDTO;
 import com.storyapi.demo.dto.StoryDTO;
 import com.storyapi.demo.dto.StorySearchDTO;
+import com.storyapi.demo.dto.StoryStatsDTO;
 
 import org.springframework.transaction.annotation.Transactional;
 import com.storyapi.demo.mapper.DTOMapper;
@@ -132,7 +133,6 @@ public class StoryService {
         List<Story> titleMatches = storyRepository.findByTitleContainingIgnoreCase(keyword);
         List<Story> contentMatches = storyRepository.searchInTitleAndContent(keyword, StoryStatus.PUBLISHED);
 
-        
         List<Story> allMatches = titleMatches.stream()
                 .filter(story -> story.getStatus() == StoryStatus.PUBLISHED)
                 .distinct()
@@ -222,34 +222,38 @@ public class StoryService {
     // return mapper.toStoryDTO(updatedStory);
     // }
 
-    // public StoryDTO approveStory(Long storyId, Long adminId) {
-    // return updateStoryStatus(storyId, StoryStatus.APPROVED, adminId);
-    // }
+    public StoryDTO approveStory(Long storyId, Long adminId) throws ResourceNotFoundException {
+        return updateStoryStatus(storyId, StoryStatus.APPROVED, adminId);
+    }
+
+    public StoryDTO archiveStory(Long storyId, Long adminId) throws ResourceNotFoundException {
+        return updateStoryStatus(storyId, StoryStatus.ARCHIVED, adminId);
+    }
 
     // /**
     // * Publish story (admin only)
     // */
-    // public StoryDTO publishStory(Long storyId, Long adminId) {
-    // return updateStoryStatus(storyId, StoryStatus.PUBLISHED, adminId);
-    // }
+    public StoryDTO publishStory(Long storyId, Long adminId) throws ResourceNotFoundException {
+        return updateStoryStatus(storyId, StoryStatus.PUBLISHED, adminId);
+    }
 
-    // private StoryDTO updateStoryStatus(Long storyId, StoryStatus status, Long
-    // adminId) throws ResourceNotFoundException {
-    // User admin = userRepository.findById(adminId)
-    // .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
+    private StoryDTO updateStoryStatus(Long storyId, StoryStatus status, Long adminId)
+            throws ResourceNotFoundException {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("Admin not found"));
 
-    // if (admin.getRole() != UserRole.ADMIN) {
-    // throw new UnauthorizedException("Only admins can update story status");
-    // }
+        if (admin.getRole() != UserRole.ADMIN) {
+            throw new UnauthorizedException("Only admins can update story status");
+        }
 
-    // Story story = storyRepository.findById(storyId)
-    // .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
 
-    // story.setStatus(status);
-    // Story updatedStory = storyRepository.save(story);
+        story.setStatus(status);
+        Story updatedStory = storyRepository.save(story);
 
-    // return mapper.toStoryDTO(updatedStory);
-    // }
+        return mapper.toStoryDTO(updatedStory);
+    }
 
     public void deleteStory(Long storyId, Long userId) throws ResourceNotFoundException {
         Story story = storyRepository.findById(storyId)
@@ -325,43 +329,6 @@ public class StoryService {
 
 }
 
-class StoryStatsDTO {
-    private long totalStories;
-    private long publishedStories;
-    private long draftStories;
-    private long submittedStories;
-    private long archivedStories;
-
-    public StoryStatsDTO(long totalStories, long publishedStories, long draftStories,
-            long submittedStories, long archivedStories) {
-        this.totalStories = totalStories;
-        this.publishedStories = publishedStories;
-        this.draftStories = draftStories;
-        this.submittedStories = submittedStories;
-        this.archivedStories = archivedStories;
-    }
-
-    // Getters
-    public long getTotalStories() {
-        return totalStories;
-    }
-
-    public long getPublishedStories() {
-        return publishedStories;
-    }
-
-    public long getDraftStories() {
-        return draftStories;
-    }
-
-    public long getSubmittedStories() {
-        return submittedStories;
-    }
-
-    public long getArchivedStories() {
-        return archivedStories;
-    }
-}
 
 class AuthorStatsDTO {
     private long totalStories;

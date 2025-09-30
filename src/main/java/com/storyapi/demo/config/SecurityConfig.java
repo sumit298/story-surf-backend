@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -38,23 +39,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authz -> authz.requestMatchers("/api/users/register", "/api/users/login")
-                        .permitAll().
-                        requestMatchers("/h2-console/**").permitAll()
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(
+                                "/api/users/register",
+                                "/api/users/register/**",
+                                "/api/users/login",
+                                "/api/users/login/**")
+                        .permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/stories/public/**").permitAll()
-                        .requestMatchers("/api/moods/**")
-                        .permitAll().
-                        requestMatchers("/api/stories/create", "/api/stories/*/edit")
-                        .hasAnyRole("AUTHOR", "ADMIN").anyRequest().authenticated())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Session management
-                                                                                                   // - stateless for
-                                                                                                   // JWT
+                        .requestMatchers("/api/moods/**").permitAll()
+                        .requestMatchers("/api/stories/create", "/api/stories/*/edit").hasAnyRole("AUTHOR", "ADMIN")
+                        .anyRequest().authenticated())
+
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions().disable());
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
-
     }
 
 }

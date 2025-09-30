@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.storyapi.demo.Entity.UserDirectory.User;
 import com.storyapi.demo.Entity.UserDirectory.User.UserRole;
+import com.storyapi.demo.Entity.UserDirectory.UserSettings;
 import com.storyapi.demo.Repository.UserRepository;
 import com.storyapi.demo.dto.UserRegistrationDTO;
 
@@ -38,19 +39,30 @@ public class UserService {
      */
     public User registerUser(UserRegistrationDTO registrationDTO) throws UserAlreadyExistsException {
         if (userRepository.existsByEmail(registrationDTO.getEmail())) {
-            throw new UserAlreadyExistsException("User with email " + registrationDTO.getEmail() + "already exists");
+            throw new UserAlreadyExistsException(
+                    "User with email " + registrationDTO.getEmail() + " already exists");
         }
 
+        // Create new user
         User user = new User();
         user.setName(registrationDTO.getName());
         user.setEmail(registrationDTO.getEmail());
         user.setAge(registrationDTO.getAge());
         user.setBio(registrationDTO.getBio());
 
+        // Encode and set password ONCE
         user.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
 
+        // Initialize settings
+        user.setSettings(new UserSettings());
+        user.getSettings().setFontSize("medium");
+        user.getSettings().setTheme("light");
+
+        // Set default role
+        user.setRole(UserRole.READER);
+
+        // Save user
         User savedUser = userRepository.save(user);
-        savedUser.setPassword(null);
 
         return savedUser;
     }
@@ -63,10 +75,11 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
-    
+
     @Transactional(readOnly = true)
     public User findByEmail(String email) throws ResourceNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User email not found"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
     }
 
     /**
@@ -74,12 +87,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        List<User> users = userRepository.findAll();
-
-        // remove password
-        users.forEach(user -> user.setPassword(null));
-        return users;
-
+        return userRepository.findAll();
     }
 
     /**
@@ -88,10 +96,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<User> getUsersByRole(UserRole role) {
-        List<User> users = userRepository.findByRole(role);
-        // remove password
-        users.forEach(user -> user.setPassword(null));
-        return users;
+        return userRepository.findByRole(role);
     }
 
     /**
@@ -114,9 +119,7 @@ public class UserService {
             existingUser.setBio(updateDto.getBio());
         }
 
-        User updatedUser = userRepository.save(existingUser);
-        updatedUser.setPassword(null);
-        return updatedUser;
+        return userRepository.save(existingUser);
 
     }
 
@@ -131,9 +134,7 @@ public class UserService {
             user.getSettings().setTheme(theme);
         }
 
-        User updatedUser = userRepository.save(user);
-        updatedUser.setPassword(null);
-        return updatedUser;
+        return userRepository.save(user);
     }
 
     /**
@@ -143,9 +144,7 @@ public class UserService {
         User user = findById(userId);
         user.setAppliedForAuthor(true);
 
-        User updatedUser = userRepository.save(user);
-        updatedUser.setPassword(null);
-        return updatedUser;
+        return userRepository.save(user);
     }
 
     // * Promote user to author role
@@ -156,9 +155,7 @@ public class UserService {
         user.setRole(UserRole.AUTHOR);
         user.setAppliedForAuthor(true);
 
-        User updatedUser = userRepository.save(user);
-        updatedUser.setPassword(null);
-        return updatedUser;
+        return userRepository.save(user);
     }
 
     /**
