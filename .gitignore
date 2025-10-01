@@ -35,3 +35,4 @@ test_all_endpoints.sh
 test_story_creation.sh
 test_story_final.sh
 test_endpoints.sh
+test_author_application.sh
