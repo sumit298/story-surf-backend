@@ -80,20 +80,26 @@ public class ReflectionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReflectionDTO> getStoryReflections(Long storyId) {
-        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(storyId);
+    public List<ReflectionDTO> getStoryReflections(Long storyId) throws ResourceNotFoundException {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(story);
         return mapper.toReflectionDTOList(reflections);
     }
 
     @Transactional(readOnly = true)
-    public List<ReflectionDTO> getStoryReflectionsByType(Long storyId, ReflectionType type) {
-        List<Reflection> reflections = reflectionRepository.findByStoryAndType(storyId, type);
+    public List<ReflectionDTO> getStoryReflectionsByType(Long storyId, ReflectionType type) throws ResourceNotFoundException {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+        List<Reflection> reflections = reflectionRepository.findByStoryAndType(story, type);
         return mapper.toReflectionDTOList(reflections);
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Long> getStoryMoodStats(Long storyId) {
-        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(storyId);
+    public Map<String, Long> getStoryMoodStats(Long storyId) throws ResourceNotFoundException {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(story);
 
         return reflections.stream()
                 .filter(r -> r.getMoodReaction() != null && !r.getMoodReaction().trim().isEmpty())
@@ -131,8 +137,10 @@ public class ReflectionService {
     // }
 
     @Transactional(readOnly = true)
-    public Optional<ReflectionDTO> getUserReflectionForStory(Long userId, Long storyId) {
-        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(storyId);
+    public Optional<ReflectionDTO> getUserReflectionForStory(Long userId, Long storyId) throws ResourceNotFoundException {
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
+        List<Reflection> reflections = reflectionRepository.findByStoryOrderByCreatedAtDesc(story);
         Optional<Reflection> reflection = reflections.stream()
                 .filter(r -> r.getUser().getId().equals(userId))
                 .findFirst();
@@ -219,14 +227,14 @@ public class ReflectionService {
         private long totalReflections;
         private long totalComments;
         private long totalReactions;
-        private Map<String, Long> moodUsageStats;
+        // private Map<String, Long> moodUsageStats;
 
         public ReflectionStatsDTO(long totalReflections, long totalComments,
                 long totalReactions, Map<String, Long> moodUsageStats) {
             this.totalReflections = totalReflections;
             this.totalComments = totalComments;
             this.totalReactions = totalReactions;
-            this.moodUsageStats = moodUsageStats;
+            // this.moodUsageStats = moodUsageStats;
         }
 
         // getters and setters
@@ -242,8 +250,8 @@ public class ReflectionService {
             return totalReactions;
         }
 
-        public Map<String, Long> getMoodUsageStats() {
-            return moodUsageStats;
-        }
+        // public Map<String, Long> getMoodUsageStats() {
+        //     return moodUsageStats;
+        // }
     }
 }

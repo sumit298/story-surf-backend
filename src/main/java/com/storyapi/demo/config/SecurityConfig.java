@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/api/users/register",
                                 "/api/users/register/**",
                                 "/api/users/login",
-                                "/api/users/login/**")
+                                "/api/users/login/**",
+                                "/api/users/public/**")
                         .permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/stories/public/**").permitAll()

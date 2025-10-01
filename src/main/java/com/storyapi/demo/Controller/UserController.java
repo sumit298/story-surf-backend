@@ -245,5 +245,21 @@ public class UserController {
 
         }
     }
+    
+    @PutMapping("/public/{id}/promote-to-author")
+    public ResponseEntity<Map<String, Object>> promoteToAuthor(@PathVariable Long id) {
+        try {
+            User user = userService.promoteToAuthor(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User promoted to author successfully");
+            response.put("user", user);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to promote user");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
 
 }

@@ -275,13 +275,15 @@ public class StoryService {
         storyRepository.delete(story);
     }
 
-    public StoryDTO likeStory(Long storyId) throws InvalidRequestException, ResourceNotFoundException {
+    public StoryDTO likeStory(Long storyId, Long userId) throws InvalidRequestException, ResourceNotFoundException {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Story story = storyRepository.findById(storyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Story  not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Story not found"));
 
         if (story.getStatus() != StoryStatus.PUBLISHED) {
             throw new InvalidRequestException("Cannot like unpublished stories");
-
         }
 
         story.setLikes(story.getLikes() + 1);
@@ -331,7 +333,6 @@ public class StoryService {
     // }
 
 }
-
 
 class AuthorStatsDTO {
     private long totalStories;

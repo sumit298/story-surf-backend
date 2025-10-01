@@ -15,13 +15,13 @@ public interface MoodRepository extends JpaRepository<Mood, Long>{
     
     
     
-    List<Mood> findByColorCode(String colorCode);
+    // List<Mood> findByColorCode(String colorCode);
     
-     @Query("SELECT m.name, COUNT(r) FROM Mood m LEFT JOIN Reflection r ON r.moodReaction = m.name GROUP BY m.name ORDER BY COUNT(r) DESC")
-    List<Object[]> getMoodUsageStats();
+    //  @Query("SELECT m.name, COUNT(r) FROM Mood m LEFT JOIN Reflection r ON r.moodReaction = m.name GROUP BY m.name ORDER BY COUNT(r) DESC")
+    // List<Object[]> getMoodUsageStats();
     
     // Most popular moods (used in reactions)
-    @Query("SELECT m FROM Mood m WHERE m.name IN (SELECT DISTINCT r.moodReaction FROM Reflection r WHERE r.moodReaction IS NOT NULL) ORDER BY m.displayOrder")
-    List<Mood> findUsedMoods();
+    // @Query("SELECT m FROM Mood m WHERE m.name IN (SELECT DISTINCT r.moodReaction FROM Reflection r WHERE r.moodReaction IS NOT NULL) ORDER BY m.displayOrder")
+    // List<Mood> findUsedMoods();
     
 }

@@ -31,7 +31,7 @@ public class MoodService {
 
         // Validate mood doesn't already exist
         if (moodRepository.existsByMoodName(name)) {
-            throw new IllegalArgumentException("Mood with name '" + name + " already exists");
+            throw new IllegalArgumentException("Mood with name '" + name + "already exists");
         }
 
         Mood mood = new Mood();
