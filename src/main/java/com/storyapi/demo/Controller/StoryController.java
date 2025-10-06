@@ -34,7 +34,6 @@ import com.storyapi.demo.dto.StoryStatsDTO;
 @RequestMapping("api/stories")
 @CrossOrigin(origins = "*", maxAge = 3600)
 
-
 public class StoryController {
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -166,49 +165,53 @@ public class StoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
-    
+
     @PostMapping("/{id}/like")
-    public ResponseEntity<Map<String, Object>> likeStory(@PathVariable Long id, Authentication authentication){
+    public ResponseEntity<Map<String, Object>> likeStory(@PathVariable Long id, Authentication authentication) {
         try {
-            CustomUserDetailsService.CustomUserPrincipal userPrincipal = (CustomUserDetailsService.CustomUserPrincipal) authentication.getPrincipal();
+            CustomUserDetailsService.CustomUserPrincipal userPrincipal = (CustomUserDetailsService.CustomUserPrincipal) authentication
+                    .getPrincipal();
             StoryDTO story = storyService.likeStory(id, userPrincipal.getId());
-            
+
             Map<String, Object> response = Map.of("story", story, "message", "Story liked successfully");
-            
+
             return ResponseEntity.ok(ResponseUtil.success(response, "Story liked successfully"));
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createStory(@RequestBody StoryCreateDTO storyDTO, Authentication authentication ){
+    public ResponseEntity<Map<String, Object>> createStory(@RequestBody StoryCreateDTO storyDTO,
+            Authentication authentication) {
         try {
-            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication.getPrincipal();
+            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication
+                    .getPrincipal();
             StoryDTO createdStory = storyService.createStory(storyDTO, principal.getId());
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.success(createdStory, "Story created successfully"));
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ResponseUtil.success(createdStory, "Story created successfully"));
         } catch (Exception e) {
-            
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     @GetMapping("/my-stories")
     public ResponseEntity<Map<String, Object>> getMyStories(Authentication authentication) {
         try {
-            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication.getPrincipal();
+            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication
+                    .getPrincipal();
             List<StoryDTO> stories = storyService.getStories(principal.getId());
-            
+
             Map<String, Object> response = Map.of("stories", stories, "total", stories.size());
             return ResponseEntity.ok(ResponseUtil.success(response, "User stories retrieved"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     @GetMapping("/{id}/edit")
     public ResponseEntity<Map<String, Object>> getStoryForEdit(@PathVariable Long id, Authentication authentication) {
         try {
@@ -218,46 +221,56 @@ public class StoryController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateStory(@PathVariable Long id, @RequestBody StoryCreateDTO updateDto, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> updateStory(@PathVariable Long id, @RequestBody StoryCreateDTO updateDto,
+            Authentication authentication) {
         try {
-            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication.getPrincipal();
+            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication
+                    .getPrincipal();
             StoryDTO updatedStory = storyService.updateStory(id, updateDto, principal.getId());
-            
+
             return ResponseEntity.ok(ResponseUtil.success(updatedStory, "Story updated successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteStory(@PathVariable Long id, Authentication authentication) {
         try {
-            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication.getPrincipal();
+            CustomUserDetailsService.CustomUserPrincipal principal = (CustomUserDetailsService.CustomUserPrincipal) authentication
+                    .getPrincipal();
             storyService.deleteStory(id, principal.getId());
-            
+
             return ResponseEntity.ok(ResponseUtil.success(null, "Story deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseUtil.error(e.getMessage()));
         }
     }
-    
+
     // @PostMapping("/{id}/save")
 
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> getAllStories() {
+    public ResponseEntity<Map<String, Object>> getAllStories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size)
+
+    {
         try {
-            List<StoryDTO> stories = storyService.getAllStories();
-            
+            Page<StoryDTO> stories = storyService.getAllStories(page, size);
+
             Map<String, Object> response = Map.of(
-                "stories", stories,
-                "total", stories.size()
-            );
-            
+                    "stories", stories.getContent(),
+                    "currentPage", stories.getNumber(),
+                    "totalPages", stories.getTotalPages(),
+                    "totalElements", stories.getTotalElements(),
+                    "hasNext", stories.hasNext(),
+                    "hasPrevious", stories.hasPrevious());
+
             return ResponseEntity.ok(ResponseUtil.success(response, "All stories retrieved"));
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ResponseUtil.error(e.getMessage()));

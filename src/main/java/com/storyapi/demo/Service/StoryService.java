@@ -298,9 +298,11 @@ public class StoryService {
     // }
 
     @Transactional(readOnly = true)
-    public List<StoryDTO> getAllStories() {
-        List<Story> stories = storyRepository.findAllByOrderByCreatedAtDesc();
-        return mapper.toStoryDTOList(stories);
+    public Page<StoryDTO> getAllStories(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Story> stories = storyRepository.findAll(pageable);
+        // List<Story> stories = storyRepository.findAllByOrderByCreatedAtDesc();
+        return stories.map(mapper::toStoryDTO);
     }
 
     @Transactional(readOnly = true)
