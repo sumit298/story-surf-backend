@@ -298,6 +298,12 @@ public class StoryService {
     // }
 
     @Transactional(readOnly = true)
+    public List<StoryDTO> getAllStories() {
+        List<Story> stories = storyRepository.findAllByOrderByCreatedAtDesc();
+        return mapper.toStoryDTOList(stories);
+    }
+
+    @Transactional(readOnly = true)
     public StoryStatsDTO getStoryStats() {
         long totalStories = storyRepository.count();
         long publishedStories = storyRepository.countByStatus(StoryStatus.PUBLISHED);

@@ -245,25 +245,24 @@ public class StoryController {
     
     // @PostMapping("/{id}/save")
 
-    // @GetMapping("/admin/pending")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<Map<String, Object>> getPendingStories() {
-    // try {
-    // List<StoryDTO> stories = storyService.getStoriesPendingReview();
-
-    // Map<String, Object> response = Map.of(
-    // "stories", stories,
-    // "total", stories.size()
-    // );
-
-    // return ResponseEntity.ok(ResponseUtil.success(response, "Pending stories
-    // retrieved"));
-
-    // } catch (Exception e) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    // .body(ResponseUtil.error(e.getMessage()));
-    // }
-    // }
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getAllStories() {
+        try {
+            List<StoryDTO> stories = storyService.getAllStories();
+            
+            Map<String, Object> response = Map.of(
+                "stories", stories,
+                "total", stories.size()
+            );
+            
+            return ResponseEntity.ok(ResponseUtil.success(response, "All stories retrieved"));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseUtil.error(e.getMessage()));
+        }
+    }
 
     @PutMapping("/admin/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
